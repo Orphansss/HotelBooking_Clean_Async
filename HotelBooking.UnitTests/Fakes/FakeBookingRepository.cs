@@ -9,13 +9,28 @@ namespace HotelBooking.UnitTests.Fakes
     {
         private DateTime fullyOccupiedStartDate;
         private DateTime fullyOccupiedEndDate;
+        private List<Booking> _bookings; // new backing field
 
+        // Original constructor — unchanged behavior
         public FakeBookingRepository(DateTime start, DateTime end)
         {
             fullyOccupiedStartDate = start;
             fullyOccupiedEndDate = end;
+            _bookings = null; 
         }
 
+        // Constructor overload to inject any list of bookings directly
+        public FakeBookingRepository(List<Booking> bookings)
+        {
+            _bookings = bookings;
+        }
+        
+        // Constructor overload to instantiate an empty repository without bookings
+        public FakeBookingRepository()
+        {
+            _bookings = new List<Booking>();
+        }
+        
         // This field is exposed so that a unit test can validate that the
         // Add method was invoked.
         public bool addWasCalled = false;
@@ -53,6 +68,11 @@ namespace HotelBooking.UnitTests.Fakes
 
         public Task<IEnumerable<Booking>> GetAllAsync()
         {
+            if (_bookings != null)
+            {
+                return Task.FromResult<IEnumerable<Booking>>(_bookings);
+            }
+            
             IEnumerable<Booking> bookings = new List<Booking>
             {
                 new Booking { Id=1, StartDate=DateTime.Today.AddDays(1), EndDate=DateTime.Today.AddDays(1), IsActive=true, CustomerId=1, RoomId=1 },
