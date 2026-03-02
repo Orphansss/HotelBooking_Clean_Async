@@ -240,7 +240,62 @@ public class BookingManagerMoqTests
     #endregion
 
     #region Oliver
+    
+    /// <summary>
+    /// Unit tests for the method FindAvailableRoom
+    /// </summary>
+    // TEST 1 - InlineData: StartDate > EndDate shall throw ArgumentException
+    [Theory]
+    [InlineData(1, 0)]
+    [InlineData(5, 1)]
+    [InlineData(30, 10)]
+    public async Task FindAvailableRoom_StartDateAfterEndDate_ThrowsArgumentException(int startOffset, int endOffset)
+    {
+        //Arrange
+        DateTime startDate = DateTime.Today.AddDays(startOffset);
+        DateTime endDate = DateTime.Today.AddDays(endOffset);
+        
+        //Act
+        Task result() => bookingManager.FindAvailableRoom(startDate, endDate);
+        
+        //Assert
+        await Assert.ThrowsAsync<ArgumentException>(result);
+    }
 
+    // TEST 2 - MemberData: StartDate < DateTime.Today shall throw ArgumentException
+    [Theory]
+    [MemberData(nameof(StartDateInThePastTestData.StartDateInThePastCases), MemberType = typeof(StartDateInThePastTestData))]
+    public async Task FindAvailableRoom_StartDateInThePast_ThrowsArgumentException(DateTime startDate, DateTime endDate)
+    {
+        //Act
+        Task result() => bookingManager.FindAvailableRoom(startDate, endDate);
+        
+        //Assert
+        await Assert.ThrowsAsync<ArgumentException>(result);
+    }
+
+    // Test 3 - MemberData: When all rooms are boked, the method must return -1
+    [Theory]
+    [MemberData(nameof(AllRoomsBookedTestData.Data), MemberType = typeof(AllRoomsBookedTestData))]
+    public async Task FindAvailableRoom_AllRoomsBooked_ReturnsMinusOne(List<Booking> bookings)
+    {
+        // Arrange
+        DateTime startDate = DateTime.Today.AddDays(5);
+        DateTime endDate = DateTime.Today.AddDays(7);
+
+        bookingRepoMock.Setup(b => b.GetAllAsync())
+            .ReturnsAsync(bookings);
+        
+        // Act
+        int result = await bookingManager.FindAvailableRoom(startDate, endDate);
+
+        // Assert
+        Assert.Equal(-1, result);
+
+        // Verify repositories were called 
+        bookingRepoMock.Verify(b => b.GetAllAsync(), Times.Once);
+        roomRepoMock.Verify(r => r.GetAllAsync(), Times.Once);
+    }
+    
     #endregion
-
 }
