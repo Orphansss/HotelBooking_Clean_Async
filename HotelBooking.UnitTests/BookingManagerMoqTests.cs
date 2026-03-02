@@ -115,7 +115,7 @@ public class BookingManagerMoqTests
 
 
 
-    // TEST 1 - Some dates fully occupied -> returnér KUN de datoer
+    // TEST 4 - Some dates fully occupied -> returnér KUN de datoer
     [Theory]
     // Principle: Data-driven tests (MemberData) - en test kan køre flere scenarier uden copy-paste.
     // Principle: Easy to change/evolve - man kan tilføje nye scenarier i TestData uden at skrive nye tests.
@@ -151,7 +151,7 @@ public class BookingManagerMoqTests
     }
 
 
-    // TEST 2 - All dates fully occupied -> returnér ALLE datoer i range
+    // TEST 5 - All dates fully occupied -> returnér ALLE datoer i range
     [Theory]
     // Principle: Data-driven tests (InlineData) - samme test køres med flere ranges (1, 2, 8 dage).
     // Principle: Easy to write + easy to read - hurtigt at se hvilke cases der testes.
@@ -201,7 +201,7 @@ public class BookingManagerMoqTests
     }
 
 
-    // TEST 3 - Only counts active bookings - inaktive må ikke gøre dagen “fully occupied”
+    // TEST 6 - Only counts active bookings - inaktive må ikke gøre dagen “fully occupied”
     [Theory]
     // Principle: Data-driven tests (MemberData) - flere scenarier med blandet aktiv/inaktiv data uden nye tests.
     // Principle: Easy to change/evolve - tilføj flere cases i OnlyCountsActiveBookingsTestData senere.
@@ -237,14 +237,142 @@ public class BookingManagerMoqTests
 
     #region Jan
 
+    // TEST 7 - InlineData: multiple valid date ranges should return true
+    [Theory]
+    [InlineData(1, 1)]   // same day booking in future
+    [InlineData(1, 2)]   // 2 day booking starting tomorrow
+    [InlineData(5, 10)]  // 6 day booking starting in 5 days
+    public async Task CreateBooking_MultipleValidDateRanges_ReturnsTrue(
+        int startOffset, int endOffset)
+    {
+        // Principle: "Tests should have strong assertions"
+        // Valid dates with available rooms should always return true
+
+        // Arrange - mock returns empty bookings, so rooms are available
+        bookingRepoMock.Setup(b => b.GetAllAsync())
+            .ReturnsAsync(new List<Booking>());
+
+        var booking = new Booking
+        {
+            StartDate = DateTime.Today.AddDays(startOffset),
+            EndDate = DateTime.Today.AddDays(endOffset),
+            CustomerId = 1
+        };
+
+        // Act
+        bool result = await bookingManager.CreateBooking(booking);
+
+        // Assert
+        Assert.True(result);
+        Assert.True(booking.IsActive);
+        Assert.True(booking.RoomId > 0);
+    }
+
+    // TEST 8 - InlineData: multiple invalid date ranges should throw ArgumentException
+    [Theory]
+    [InlineData(-1, -1)]  // start date in the past
+    [InlineData(-1, 2)]   // start date in the past, end in future
+    [InlineData(-5, -1)]  // both dates in the past
+    public async Task CreateBooking_MultipleInvalidDateRanges_ThrowsArgumentException(
+        int startOffset, int endOffset)
+    {
+        // Principle: "Tests should break if the behavior changes"
+        // Invalid dates should always throw ArgumentException via FindAvailableRoom
+
+        // Arrange - no mock setup needed, exception thrown in FindAvailableRoom
+        var booking = new Booking
+        {
+            StartDate = DateTime.Today.AddDays(startOffset),
+            EndDate = DateTime.Today.AddDays(endOffset),
+            CustomerId = 1
+        };
+
+        // Act
+        Task Result() => bookingManager.CreateBooking(booking);
+
+        // Assert
+        await Assert.ThrowsAsync<ArgumentException>(Result);
+    }
+
+    // TEST 9 - Interaction test: available room should call AddAsync exactly once
+    [Fact]
+    public async Task CreateBooking_AvailableRoom_CallsAddAsyncExactlyOnce()
+    {
+        // Principle: "Tests should have a single and clear reason to fail"
+        // Verifies interaction: when room available, AddAsync must be called once
+
+        // Arrange - mock returns empty bookings, so rooms are available
+        bookingRepoMock.Setup(b => b.GetAllAsync())
+            .ReturnsAsync(new List<Booking>());
+
+        var booking = new Booking
+        {
+            StartDate = DateTime.Today.AddDays(1),
+            EndDate = DateTime.Today.AddDays(2),
+            CustomerId = 1
+        };
+
+        // Act
+        await bookingManager.CreateBooking(booking);
+
+        // Assert
+        // Verify: AddAsync was called exactly once with the booking object
+        bookingRepoMock.Verify(b => b.AddAsync(booking), Times.Once);
+    }
+
+    // TEST 10 - Interaction test: no available room should not call AddAsync
+    [Fact]
+    public async Task CreateBooking_NoAvailableRoom_DoesNotCallAddAsync()
+    {
+        // Principle: "Tests should be repeatable and not flaky"
+        // Verifies interaction: when no room available, AddAsync must never be called
+
+        // Arrange - mock returns bookings that occupy all rooms
+        bookingRepoMock.Setup(b => b.GetAllAsync())
+            .ReturnsAsync(new List<Booking>
+            {
+                new Booking
+                {
+                    Id = 1,
+                    RoomId = 1,
+                    IsActive = true,
+                    StartDate = DateTime.Today.AddDays(1),
+                    EndDate = DateTime.Today.AddDays(10)
+                },
+                new Booking
+                {
+                    Id = 2,
+                    RoomId = 2,
+                    IsActive = true,
+                    StartDate = DateTime.Today.AddDays(1),
+                    EndDate = DateTime.Today.AddDays(10)
+                }
+            });
+
+        var booking = new Booking
+        {
+            StartDate = DateTime.Today.AddDays(1),
+            EndDate = DateTime.Today.AddDays(2),
+            CustomerId = 1
+        };
+
+        // Act
+        bool result = await bookingManager.CreateBooking(booking);
+
+        // Assert
+        Assert.False(result);
+        // Verify: AddAsync was never called
+        bookingRepoMock.Verify(b => b.AddAsync(It.IsAny<Booking>()), Times.Never);
+    }
+
     #endregion
 
     #region Oliver
-    
+
     /// <summary>
     /// Unit tests for the method FindAvailableRoom
     /// </summary>
-    // TEST 1 - InlineData: StartDate > EndDate shall throw ArgumentException
+    // TEST 11 - InlineData: StartDate > EndDate shall throw ArgumentException
     [Theory]
     [InlineData(1, 0)]
     [InlineData(5, 1)]
@@ -262,7 +390,7 @@ public class BookingManagerMoqTests
         await Assert.ThrowsAsync<ArgumentException>(result);
     }
 
-    // TEST 2 - MemberData: StartDate < DateTime.Today shall throw ArgumentException
+    // TEST 12 - MemberData: StartDate < DateTime.Today shall throw ArgumentException
     [Theory]
     [MemberData(nameof(StartDateInThePastTestData.StartDateInThePastCases), MemberType = typeof(StartDateInThePastTestData))]
     public async Task FindAvailableRoom_StartDateInThePast_ThrowsArgumentException(DateTime startDate, DateTime endDate)
@@ -274,7 +402,7 @@ public class BookingManagerMoqTests
         await Assert.ThrowsAsync<ArgumentException>(result);
     }
 
-    // Test 3 - MemberData: When all rooms are boked, the method must return -1
+    // Test 13 - MemberData: When all rooms are boked, the method must return -1
     [Theory]
     [MemberData(nameof(AllRoomsBookedTestData.Data), MemberType = typeof(AllRoomsBookedTestData))]
     public async Task FindAvailableRoom_AllRoomsBooked_ReturnsMinusOne(List<Booking> bookings)
