@@ -7,7 +7,7 @@ Feature: Create booking
     Given a hotel with 2 rooms
     And a fully occupied range from 10 to 12 days from today
 
-  Scenario Outline: Decision table booking outcomes
+  Scenario Outline: Create booking based on relation to fully occupied period
     Given a booking request from <StartOffset> to <EndOffset> days from today
     When I create the booking
     Then booking should <Outcome>
@@ -25,7 +25,7 @@ Feature: Create booking
       | 10          | 12        | fail    |
       | 12          | 12        | fail    |
 
-  Scenario Outline: Invalid equivalence classes are rejected
+  Scenario Outline: Reject booking for invalid input
     Given a booking request from <StartOffset> to <EndOffset> days from today
     When I create the booking
     Then an ArgumentException should be thrown

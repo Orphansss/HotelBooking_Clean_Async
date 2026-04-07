@@ -24,8 +24,8 @@ namespace HotelBooking.Reqnroll.Features
         
         private static string[] featureTags = ((string[])(null));
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Create booking", "  As a booking client\r\n  I want booking creation to respect fully occupied ranges" +
-                " and date validation\r\n  So that only valid and available periods are accepted", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Create booking", "  As a booking client\n  I want booking creation to respect fully occupied ranges " +
+                "and date validation\n  So that only valid and available periods are accepted", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
         
         private global::Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
@@ -146,9 +146,9 @@ namespace HotelBooking.Reqnroll.Features
             await this.TestTearDownAsync();
         }
         
-        [global::Xunit.SkippableTheoryAttribute(DisplayName="Decision table booking outcomes")]
+        [global::Xunit.SkippableTheoryAttribute(DisplayName="Create booking based on relation to fully occupied period")]
         [global::Xunit.TraitAttribute("FeatureTitle", "Create booking")]
-        [global::Xunit.TraitAttribute("Description", "Decision table booking outcomes")]
+        [global::Xunit.TraitAttribute("Description", "Create booking based on relation to fully occupied period")]
         [global::Xunit.InlineDataAttribute("8", "9", "succeed", "0", new string[0])]
         [global::Xunit.InlineDataAttribute("13", "14", "succeed", "1", new string[0])]
         [global::Xunit.InlineDataAttribute("9", "13", "fail", "2", new string[0])]
@@ -159,7 +159,7 @@ namespace HotelBooking.Reqnroll.Features
         [global::Xunit.InlineDataAttribute("10", "10", "fail", "7", new string[0])]
         [global::Xunit.InlineDataAttribute("10", "12", "fail", "8", new string[0])]
         [global::Xunit.InlineDataAttribute("12", "12", "fail", "9", new string[0])]
-        public async global::System.Threading.Tasks.Task DecisionTableBookingOutcomes(string startOffset, string endOffset, string outcome, string @__pickleIndex, string[] exampleTags)
+        public async global::System.Threading.Tasks.Task CreateBookingBasedOnRelationToFullyOccupiedPeriod(string startOffset, string endOffset, string outcome, string @__pickleIndex, string[] exampleTags)
         {
             string[] tagsOfScenario = exampleTags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
@@ -167,7 +167,7 @@ namespace HotelBooking.Reqnroll.Features
             argumentsOfScenario.Add("EndOffset", endOffset);
             argumentsOfScenario.Add("Outcome", outcome);
             string pickleIndex = @__pickleIndex;
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Decision table booking outcomes", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Create booking based on relation to fully occupied period", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 10
@@ -196,20 +196,20 @@ namespace HotelBooking.Reqnroll.Features
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableTheoryAttribute(DisplayName="Invalid equivalence classes are rejected")]
+        [global::Xunit.SkippableTheoryAttribute(DisplayName="Reject booking for invalid input")]
         [global::Xunit.TraitAttribute("FeatureTitle", "Create booking")]
-        [global::Xunit.TraitAttribute("Description", "Invalid equivalence classes are rejected")]
+        [global::Xunit.TraitAttribute("Description", "Reject booking for invalid input")]
         [global::Xunit.InlineDataAttribute("0", "1", "10", new string[0])]
         [global::Xunit.InlineDataAttribute("-1", "1", "11", new string[0])]
         [global::Xunit.InlineDataAttribute("5", "4", "12", new string[0])]
-        public async global::System.Threading.Tasks.Task InvalidEquivalenceClassesAreRejected(string startOffset, string endOffset, string @__pickleIndex, string[] exampleTags)
+        public async global::System.Threading.Tasks.Task RejectBookingForInvalidInput(string startOffset, string endOffset, string @__pickleIndex, string[] exampleTags)
         {
             string[] tagsOfScenario = exampleTags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             argumentsOfScenario.Add("StartOffset", startOffset);
             argumentsOfScenario.Add("EndOffset", endOffset);
             string pickleIndex = @__pickleIndex;
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Invalid equivalence classes are rejected", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Reject booking for invalid input", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 28
