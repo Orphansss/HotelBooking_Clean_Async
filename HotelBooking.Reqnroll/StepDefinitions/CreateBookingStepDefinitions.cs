@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using HotelBooking.Core;
+﻿using HotelBooking.Core;
 using HotelBooking.Reqnroll.Support;
-using Reqnroll;
-using Xunit;
 
 namespace HotelBooking.Reqnroll.StepDefinitions
 {
@@ -20,7 +14,7 @@ namespace HotelBooking.Reqnroll.StepDefinitions
         private List<DateTime> fullyOccupiedDates = new();
         private Exception? capturedException;
 
-        [Given(@"a hotel with (.*) rooms")]
+        [Given("a hotel with (.*) rooms")]
         public void GivenAHotelWithRooms(int roomCount)
         {
             rooms = Enumerable.Range(1, roomCount)
@@ -28,7 +22,7 @@ namespace HotelBooking.Reqnroll.StepDefinitions
                 .ToList();
         }
 
-        [Given(@"a fully occupied range from (.*) to (.*) days from today")]
+        [Given("a fully occupied range from (.*) to (.*) days from today")]
         public void GivenAFullyOccupiedRangeFromToDaysFromToday(int occupiedStartOffset, int occupiedEndOffset)
         {
             var occupiedStart = DateTime.Today.AddDays(occupiedStartOffset);
@@ -50,7 +44,7 @@ namespace HotelBooking.Reqnroll.StepDefinitions
             bookingManager = new BookingManager(bookingRepository, roomRepository);
         }
 
-        [Given(@"a booking request from (.*) to (.*) days from today")]
+        [Given("a booking request from (.*) to (.*) days from today")]
         public void GivenABookingRequestFromToDaysFromToday(int startOffset, int endOffset)
         {
             requestedStartDate = DateTime.Today.AddDays(startOffset);
@@ -59,7 +53,7 @@ namespace HotelBooking.Reqnroll.StepDefinitions
             createBookingResult = null;
         }
 
-        [When(@"I create the booking")]
+        [When("I create the booking")]
         public async Task WhenICreateTheBooking()
         {
             try
@@ -77,7 +71,7 @@ namespace HotelBooking.Reqnroll.StepDefinitions
             }
         }
 
-        [Then(@"booking should (.*)")]
+        [Then("booking should (.*)")]
         public void ThenBookingShould(string outcome)
         {
             Assert.Null(capturedException);
@@ -93,14 +87,14 @@ namespace HotelBooking.Reqnroll.StepDefinitions
             }
         }
 
-        [Then(@"an ArgumentException should be thrown")]
+        [Then("an ArgumentException should be thrown")]
         public void ThenAnArgumentExceptionShouldBeThrown()
         {
             Assert.NotNull(capturedException);
             Assert.IsType<ArgumentException>(capturedException);
         }
 
-        [When(@"I request fully occupied dates from (.*) to (.*) days from today")]
+        [When("I request fully occupied dates from (.*) to (.*) days from today")]
         public async Task WhenIRequestFullyOccupiedDatesFromToDaysFromToday(int startOffset, int endOffset)
         {
             var start = DateTime.Today.AddDays(startOffset);
@@ -108,7 +102,7 @@ namespace HotelBooking.Reqnroll.StepDefinitions
             fullyOccupiedDates = await bookingManager.GetFullyOccupiedDates(start, end);
         }
 
-        [Then(@"fully occupied dates should be (.*), (.*), (.*) days from today")]
+        [Then("fully occupied dates should be (.*), (.*), (.*) days from today")]
         public void ThenFullyOccupiedDatesShouldBeDaysFromToday(int day1, int day2, int day3)
         {
             var expected = new List<DateTime>
